@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Nuestra entidad en base de datos
+model Categoria {
+  id              Int      @id @default(autoincrement())
+  nombre          String
+  limitePorBloque Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relación inversa: Una categoría puede tener muchos bloques configurados
+  bloques         BloqueConfig[]
+}
+
+model BloqueConfig {
+  id        Int      @id @default(autoincrement())
+  diaSemana Int      // Representaremos los días del 0 (Domingo) al 6 (Sábado)
+  horaInicio String   // Guardaremos formato HH:MM (ej: "08:00")
+  horaFin    String   // Guardaremos formato HH:MM (ej: "12:00")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relación con Categoría
+  categoriaId Int
+  categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+}

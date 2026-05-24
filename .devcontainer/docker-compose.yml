@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    build: 
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ../:/workspaces/agenda-app-backend-node-express:cached
+    # Mantiene el contenedor vivo
+    command: sleep infinity
+    # Le decimos que espere a que la BD inicie
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: agenda_db
+    ports:
+      - "5432:5432"
+    volumes:
+      # Guardamos los datos en un volumen para que no se borren si el contenedor se apaga
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
