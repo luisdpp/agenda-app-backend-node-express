@@ -4,6 +4,9 @@ import { getCategorias, createCategoria } from '../controllers/categoria.control
 import { registry } from '../config/swagger';
 import { categoriaSchema } from '../schemas/categoria.schema';
 import { z } from 'zod';
+import { verificarToken } from '../middlewares/auth.middleware';
+import { permitirRoles } from '../middlewares/role.middleware';
+import { Role } from '@prisma/client';
 
 const router = Router();
 
@@ -43,6 +46,6 @@ registry.registerPath({
 });
 
 router.get('/', getCategorias);
-router.post('/', createCategoria);
+router.post('/', verificarToken, permitirRoles([Role.ADMIN]), createCategoria);
 
 export default router;
