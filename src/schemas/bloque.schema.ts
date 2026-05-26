@@ -1,5 +1,6 @@
 // Archivo: src/schemas/bloque.schema.ts
 import { z } from 'zod';
+import { registry } from '../config/swagger'; // Importamos el registroº
 
 export const bloqueConfigSchema = z.object({
   diaSemana: z.number().int().min(0).max(6, {
@@ -17,4 +18,6 @@ export const bloqueConfigSchema = z.object({
 }).refine((data) => data.horaInicio < data.horaFin, {
   message: 'La hora de inicio debe ser menor que la hora de fin',
   path: ['horaFin'] // El error se marcará específicamente en este campo
-});
+}).openapi('Bloque'); // <- Le damos un nombre para los esquemas de Swagger
+
+registry.register('Bloque', bloqueConfigSchema);

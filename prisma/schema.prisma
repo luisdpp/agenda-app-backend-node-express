@@ -6,6 +6,13 @@ datasource db {
   provider = "postgresql"
 }
 
+// Definimos los roles permitidos a nivel de base de datos
+enum Role {
+  ADMIN
+  RECEPCIONISTA
+  CLIENTE
+}
+
 // Nuestra entidad en base de datos
 model Categoria {
   id              Int      @id @default(autoincrement())
@@ -29,4 +36,16 @@ model BloqueConfig {
   // Relación con Categoría
   categoriaId Int
   categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+}
+
+// Nuevo modelo de Usuario con rol nativo
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nombre    String
+  email     String   @unique
+  password  String   // Almacenaremos la contraseña (luego veremos cómo encriptarla)
+  telefono  String?  // El signo de pregunta indica que es opcional (nullable)
+  rol       Role     @default(CLIENTE) // Usa el enum que definimos arriba
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
