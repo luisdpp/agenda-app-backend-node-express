@@ -6,6 +6,7 @@ import { generarDocumentacionJson } from './config/swagger';
 import categoriaRoutes from './routes/categoria.routes';
 import bloqueRoutes from './routes/bloque.routes';
 import usuarioRoutes from './routes/usuario.routes';
+import citaRoutes from './routes/cita.routes';
 
 const app = express();
 const PORT = 3000;
@@ -18,6 +19,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(generarDocumentacionJson()
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/bloques', bloqueRoutes);
 app.use('/api/usuarios', usuarioRoutes);
+app.use('/api/citas', citaRoutes);
 
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);

@@ -15,27 +15,31 @@ enum Role {
 
 // Nuestra entidad en base de datos
 model Categoria {
-  id              Int      @id @default(autoincrement())
+  id              Int            @id @default(autoincrement())
   nombre          String
   limitePorBloque Int
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
-  // Relación inversa: Una categoría puede tener muchos bloques configurados
+  // Relaciones inversas
   bloques         BloqueConfig[]
+  citas           Cita[]         // <- AGREGADO: Una categoría puede tener muchas citas
 }
 
 model BloqueConfig {
-  id        Int      @id @default(autoincrement())
-  diaSemana Int      // Representaremos los días del 0 (Domingo) al 6 (Sábado)
-  horaInicio String   // Guardaremos formato HH:MM (ej: "08:00")
-  horaFin    String   // Guardaremos formato HH:MM (ej: "12:00")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int       @id @default(autoincrement())
+  diaSemana   Int       // Representaremos los días del 0 (Domingo) al 6 (Sábado)
+  horaInicio  String    // Guardaremos formato HH:MM (ej: "08:00")
+  horaFin     String    // Guardaremos formato HH:MM (ej: "12:00")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // Relación con Categoría
   categoriaId Int
   categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+
+  // Relación inversa
+  citas       Cita[]    // <- AGREGADO: Un bloque de horario puede tener muchas citas asignadas
 }
 
 // Nuevo modelo de Usuario con rol nativo
@@ -48,4 +52,30 @@ model Usuario {
   rol       Role     @default(CLIENTE) // Usa el enum que definimos arriba
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relación inversa
+  citas     Cita[]   // <- AGREGADO: Un usuario puede tener muchas citas agendadas
+}
+
+model Cita {
+  id          Int          @id @default(autoincrement())
+  fecha       DateTime     // La fecha específica del día de la cita (ej: "2026-06-01")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relación con Usuario (Quién saca la cita)
+  usuarioId   Int
+  usuario     Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  // Relación con Categoría (Qué especialidad/servicio)
+  categoriaId Int
+  categoria   Categoria    @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+
+  // Relación con el Bloque de Configuración (En qué turno de horario)
+  bloqueId    Int
+  bloque      BloqueConfig @relation(fields: [bloqueId], references: [id], onDelete: Cascade)
+
+  // Creamos un índice compuesto único para evitar que un mismo usuario 
+  // agende dos citas en la misma categoría exactamente el mismo día y hora
+  @@unique([usuarioId, fecha, bloqueId])
 }
