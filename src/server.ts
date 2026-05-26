@@ -8,6 +8,7 @@ import bloqueRoutes from './routes/bloque.routes';
 import usuarioRoutes from './routes/usuario.routes';
 import citaRoutes from './routes/cita.routes';
 import authRoutes from './routes/auth.routes';
+import dashboardRoutes from './routes/dashboard.routes';
 
 const app = express();
 const PORT = 3000;
@@ -22,6 +23,7 @@ app.use('/api/bloques', bloqueRoutes);
 app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/citas', citaRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
