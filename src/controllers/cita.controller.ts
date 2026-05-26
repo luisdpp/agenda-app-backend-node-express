@@ -2,6 +2,7 @@
 import { Request, Response } from 'express';
 import { citaSchema } from '../schemas/cita.schema';
 import * as citaService from '../services/cita.service';
+import { prisma } from '../config/prisma';
 import { z } from 'zod';
 
 export const getCitas = async (req: Request, res: Response) => {
@@ -16,10 +17,26 @@ export const getCitas = async (req: Request, res: Response) => {
 
 export const createCita = async (req: Request, res: Response) => {
     try {
-        // 1. Validar datos de entrada y transformar la fecha en objeto Date
+        // 1. Validar datos de entrada con Zod
         const datosValidados = citaSchema.parse(req.body);
 
-        // 2. Aplicar regla de negocio: ¿Hay espacio disponible en este bloque?
+        // 2. NUEVA VALIDACIÓN: Verificar si el bloque realmente pertenece a la categoría
+        const bloqueVeridico = await prisma.bloqueConfig.findFirst({
+            where: {
+                id: datosValidados.bloqueId,
+                categoriaId: datosValidados.categoriaId
+            }
+        });
+
+        if (!bloqueVeridico) {
+            res.status(400).json({ 
+                error: 'Inconsistencia de datos',
+                mensaje: `El bloque con ID ${datosValidados.bloqueId} no está asociado a la categoría con ID ${datosValidados.categoriaId}.` 
+            });
+            return;
+        }
+
+        // 3. Aplicar regla de negocio: ¿Hay espacio disponible en este bloque?
         const estaDisponible = await citaService.verificarDisponibilidadBloque(
             datosValidados.fecha,
             datosValidados.categoriaId,
@@ -34,7 +51,7 @@ export const createCita = async (req: Request, res: Response) => {
             return;
         }
 
-        // 3. Si hay cupo, se guarda la cita
+        // 4. Si pasa todos los filtros, se guarda la cita con total seguridad
         const nuevaCita = await citaService.guardarCita(datosValidados);
 
         res.status(201).json({

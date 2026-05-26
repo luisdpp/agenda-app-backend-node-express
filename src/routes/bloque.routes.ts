@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { getBloques, createBloque } from '../controllers/bloque.controller';
+import { getBloques, createBloque, getDisponibilidadHorarios } from '../controllers/bloque.controller';
 import { registry } from '../config/swagger';
-import { bloqueConfigSchema } from '../schemas/bloque.schema';
 import { z } from 'zod';
+import { bloqueConfigSchema } from '../schemas/bloque.schema';
 import { categoriaSchema } from '../schemas/categoria.schema';
 
 const router = Router();
@@ -46,8 +46,26 @@ registry.registerPath({
   },
 });
 
+registry.registerPath({
+  method: 'get',
+  path: '/api/bloques/disponibles',
+  summary: 'Consultar bloques de horarios disponibles para una fecha y categoría',
+  tags: ['Bloques de Configuración'],
+  request: {
+    query: z.object({
+      fecha: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: "Formato YYYY-MM-DD" }),
+      categoriaId: z.string() // Los query params entran como string
+    })
+  },
+  responses: {
+    200: { description: 'Disponibilidad calculada exitosamente' },
+    400: { description: 'Parámetros inválidos' }
+  }
+});
+
 // Rutas relativas para bloques de configuración
 router.get('/', getBloques);
 router.post('/', createBloque);
+router.get('/disponibles', getDisponibilidadHorarios);
 
 export default router;

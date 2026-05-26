@@ -38,3 +38,26 @@ export const createBloque = async (req: Request, res: Response) => {
         }
     }
 };
+
+export const getDisponibilidadHorarios = async (req: Request, res: Response) => {
+    try {
+        const { fecha, categoriaId } = req.query;
+
+        // Validaciones básicas de los query params
+        if (!fecha || !categoriaId) {
+             res.status(400).json({ error: 'Faltan parámetros', mensaje: 'Se requieren los parámetros ?fecha=YYYY-MM-DD&categoriaId=X' });
+             return;
+        }
+
+        const resultados = await bloqueService.obtenerBloquesConDisponibilidad(
+            String(fecha),
+            Number(categoriaId)
+        );
+
+        res.status(200).json(resultados);
+
+    } catch (error: any) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al calcular la disponibilidad', detalles: error.message });
+    }
+};
