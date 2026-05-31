@@ -1,6 +1,6 @@
 // Archivo: src/routes/categoria.routes.ts
 import { Router } from 'express';
-import { getCategorias, createCategoria } from '../controllers/categoria.controller';
+import { getCategorias, createCategoria, deleteCategoria, updateCategoria } from '../controllers/categoria.controller';
 import { registry } from '../config/swagger';
 import { categoriaSchema } from '../schemas/categoria.schema';
 import { z } from 'zod';
@@ -45,7 +45,37 @@ registry.registerPath({
   },
 });
 
+// Documentamos el PUT de categorías
+registry.registerPath({
+  method: 'put',
+  path: '/api/categorias/{id}',
+  summary: 'Actualizar una categoría existente',
+  tags: ['Categorías'],
+  request: {
+    body: { content: { 'application/json': { schema: categoriaSchema } } },
+  },
+  responses: {
+    200: { description: 'Categoría actualizada exitosamente' },
+    400: { description: 'Datos enviados inválidos' },
+    404: { description: 'Categoría no encontrada' }
+  },
+});
+
+// Documentamos el DELETE de categorías
+registry.registerPath({
+  method: 'delete',
+  path: '/api/categorias/{id}',
+  summary: 'Eliminar una categoría existente',
+  tags: ['Categorías'],
+  responses: {
+    200: { description: 'Categoría eliminada exitosamente' },
+    404: { description: 'Categoría no encontrada' }
+  },
+});
+
 router.get('/', getCategorias);
 router.post('/', verificarToken, permitirRoles([Role.ADMIN]), createCategoria);
+router.put('/:id', verificarToken, permitirRoles([Role.ADMIN]), updateCategoria);
+router.delete('/:id', verificarToken, permitirRoles([Role.ADMIN]), deleteCategoria);
 
 export default router;

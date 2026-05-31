@@ -37,3 +37,52 @@ export const createCategoria = async (req: Request, res: Response) => {
         }
     }
 };
+
+export const updateCategoria = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const datosValidados = categoriaSchema.parse(req.body);
+
+        const categoriaActualizada = await categoriaService.actualizarCategoria(Number(id), datosValidados);
+
+        if (!categoriaActualizada) {
+            return res.status(404).json({ error: 'Categoría no encontrada' });
+        }
+
+        res.status(200).json({
+            mensaje: 'Categoría actualizada exitosamente',
+            datos: categoriaActualizada
+        });
+
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            res.status(400).json({
+                error: 'Datos inválidos',
+                detalles: error.issues
+            });
+        } else {
+            console.error(error);
+            res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
+}
+
+export const deleteCategoria = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        const categoriaEliminada = await categoriaService.eliminarCategoria(Number(id));
+
+        if (!categoriaEliminada) {
+            return res.status(404).json({ error: 'Categoría no encontrada' });
+        }
+
+        res.status(200).json({
+            mensaje: 'Categoría eliminada exitosamente',
+            datos: categoriaEliminada
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+}

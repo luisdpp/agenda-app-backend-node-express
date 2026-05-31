@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 
 import swaggerUi from 'swagger-ui-express';
 import { generarDocumentacionJson } from './config/swagger';
@@ -12,6 +13,12 @@ import dashboardRoutes from './routes/dashboard.routes';
 
 const app = express();
 const PORT = 3000;
+
+app.use(cors({
+    origin: 'http://localhost:4200', // Le damos permiso exclusivo a tu Angular
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(express.json());
 
