@@ -24,6 +24,19 @@ export const guardarBloque = async (datos: CrearBloqueDatos) => {
   });
 };
 
+export const actualizarBloque = async (id: number, datos: CrearBloqueDatos) => {
+  return await prisma.bloqueConfig.update({
+    where: { id },
+    data: datos
+  });
+};
+
+export const eliminarBloque = async (id: number) => {
+  return await prisma.bloqueConfig.delete({
+    where: { id }
+  });
+};
+
 export const obtenerBloquesConDisponibilidad = async (fechaStr: string, categoriaId: number) => {
   // 1. Convertir el string "2026-06-15" a un objeto Date local para extraer el día de la semana
   const [year, month, day] = fechaStr.split('-').map(Number);

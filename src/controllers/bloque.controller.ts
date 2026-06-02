@@ -39,6 +39,56 @@ export const createBloque = async (req: Request, res: Response) => {
     }
 };
 
+export const updateBloque = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const datosValidados = bloqueConfigSchema.parse(req.body);
+
+        const bloqueActualizado = await bloqueService.actualizarBloque(Number(id), datosValidados);
+
+        if (!bloqueActualizado) {
+            return res.status(404).json({ error: 'Bloque de configuración no encontrado' });
+        }
+
+        res.status(200).json({
+            mensaje: 'Bloque de configuración actualizado exitosamente',
+            datos: bloqueActualizado
+        });
+
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            res.status(400).json({
+                error: 'Datos inválidos',
+                detalles: error.issues 
+            });
+        } else {
+            console.error(error);
+            res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
+};
+
+export const deleteBloque = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        const bloqueEliminado = await bloqueService.eliminarBloque(Number(id));
+
+        if (!bloqueEliminado) {
+            return res.status(404).json({ error: 'Bloque de configuración no encontrado' });
+        }
+
+        res.status(200).json({
+            mensaje: 'Bloque de configuración eliminado exitosamente',
+            datos: bloqueEliminado
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+};
+
 export const getDisponibilidadHorarios = async (req: Request, res: Response) => {
     try {
         const { fecha, categoriaId } = req.query;
